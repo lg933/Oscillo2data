@@ -170,7 +170,7 @@ int stockage(void) {
         return -1;
     }
     
-    // Création nouveau tableau de traces pour garder les 5 premiers
+    // Création d'un nouveau tableau de traces pour garder les 5 premiers
     int traces_f[5]; //f = filtre
     for (int m = 0; m < 5; m++){
         traces_f[m]=traces_sf[m];
