@@ -26,8 +26,9 @@ int stockage(void) {
      
      ÉTAPE 3 : COORDONNÉES
      11) Calcul des coordonnées (repère en haut à gauche) : x = (pixel n°i) / largeur, y = (pixel n°i) % largeur
-     12) Création du fichier Traces.txt
-     13) Écriture des points de contrôle et coordonnées
+     12) Transformation vers un repère en bas à gauche : x = (pixel n°i) / largeur, y = hauteur - (pixel n°i) % largeur
+     13) Création du fichier Traces.txt
+     14) Écriture des points de contrôle et coordonnées
      
      ---------------
      NOMENCLARUTURE
@@ -36,6 +37,7 @@ int stockage(void) {
      dimensions[n] = profondeur / largeur / hauteur
      nb_pixels = nombre de pixels dans l'image
      pixel[i] = couleur du pixel n°i
+     nb_couleur = nombre de couleurs possibles (voir : web-clut.jpg)
      frequence[j] = fréquence de la couleur n°j
      corner_check : vérifie la présence des points de contrôle (erreur si corner_check != 1)
      nb_trace = nombre de traces
@@ -44,6 +46,26 @@ int stockage(void) {
      coord_x : coordonnées x du pixel i
      coord_y : coordonnées y du pixel i
      
+     ---------------
+     ERREURS
+     ---------------
+     
+     Erreur: Impossible d'ouvrir le fichier
+     Erreur: Impossible de lire les dimensions
+     Erreur: Les dimensions doivent être positives
+     Erreur: La profondeur doit être égale à 8
+     Erreur: Largeur et hauteur doivent être comprises entre 100 et 1000
+     Erreur: Impossible d'allouer de la mémoire pour les pixels
+     Erreur: Nombre incompatible de pixels lus
+     Erreur: Impossible d'allouer de la mémoire pour l'histogramme des couleurs
+     Erreur: Aucun points de contrôles trouvés
+     Erreur: Aucunne trace trouvée
+     Erreur: Impossible de créer Traces.txt
+     
+     !!! Traces.txt ne se créé pas depuis Xcode
+     !!! gestion des erreurs pour l'écriture dans Traces.txt
+     !!! gestion si deux traces ont la même fréquence
+     
      */
     
     // ------------------------------------------------------------------------
@@ -51,9 +73,9 @@ int stockage(void) {
     // ------------------------------------------------------------------------
     
     // Ouverture du fichier Pixmap.bin
-    FILE *input = fopen("/Users/leogallacio/Downloads/Pixmap/Pixmap.bin", "rb");
+    FILE *input = fopen("/Users/leogallacio/Downloads/Pixmap3/Pixmap.bin", "rb");
     if (input == NULL) {
-        fprintf(stderr, "Erreur. Impossible d'ouvrir le fichier\n");
+        fprintf(stderr, "Erreur: Impossible d'ouvrir le fichier\n");
         return -1;
     }
     
@@ -65,30 +87,30 @@ int stockage(void) {
     int largeur = dimensions[1];
     int hauteur = dimensions[2];
     if (dim_read != 3) {
-        printf("Erreur: Impossible de lire les dimensions.\n");
+        printf("Erreur: Impossible de lire les dimensions\n");
         fclose(input);
         return -1;
     }
 
-    // Vérification que les dimensions soient positives
+    // Vérification que les dimensions sont positives
     for (int n = 0; n < 3; n++) {
         if (dimensions[n] <= 0) {
-            printf("Erreur: Dimension invalide.\n");
+            printf("Erreur: Les dimensions doivent être positives\n");
             fclose(input);
             return -1;
         }
     }
     
-    // Validation des profondeurs
+    // Vérification que la profondeur est de 8
     if(dimensions[0]!=8){
-        printf("Erreur: Profondeur invalide.\n");
+        printf("Erreur: La profondeur doit être de 8\n");
         fclose(input);
         return -1;
     }
 
-    // Validation des dimensions
-    if (dimensions[1] < 100 || dimensions[1] > 1000 || dimensions[2] < 100 || dimensions[2] > 1000){
-        printf("Erreur: Dimension invalide comp.\n");
+    // Vérification que largeur et hauteur ∈ [100; 1000]
+    if ((dimensions[1] < 100 || dimensions[1] > 1000) || (dimensions[2] < 100 || dimensions[2] > 1000)){
+        printf("Erreur: Largeur et hauteur doivent être comprises entre 100 et 1000\n");
         fclose(input);
         return -1;
     }
@@ -102,18 +124,16 @@ int stockage(void) {
 
     // Allocation mémoire pour les pixels
     unsigned char *pixel = (unsigned char *)malloc(nb_pixels * sizeof(unsigned char));
-    if (!pixel) {
-        printf("Erreur: Impossible d'allouer de la mémoire.\n");
+    if (pixel == NULL) {
+        printf("Erreur: Impossible d'allouer de la mémoire pour les pixels\n");
         fclose(input);
         return -1;
     }
 
     // Lecture des pixels du fichier
     size_t pix_read = fread(pixel, sizeof(unsigned char), nb_pixels, input);
-
-    // Validation du nombre de pixels lus
     if (pix_read != nb_pixels) {
-        printf("Erreur: Nombre incompatible de pixels.\n");
+        printf("Erreur: Nombre incompatible de pixels lus\n");
         free(pixel);
         fclose(input);
         return -1;
@@ -122,8 +142,15 @@ int stockage(void) {
     // Création de l'histogramme à 256 entrées
     const int nb_couleur = 256;
     unsigned int *frequence = (unsigned int *)calloc(nb_couleur, sizeof(unsigned int));
+    if (frequence == NULL) {
+        printf("Erreur: Impossible d'allouer de la mémoire pour l'histogramme des couleurs\n");
+        fclose(input);
+        return -1;
+    }
+    
+    // Remplissage de l'histogramme avec les fréquences de chaque couleurs
     for (int i = 0; i < nb_pixels; i++){
-                frequence[pixel[i]]++;
+        frequence[pixel[i]]++;
     }
     
     // Affichage des points de contrôles
@@ -142,6 +169,14 @@ int stockage(void) {
         }
     }
     
+    // Vérification de l'existence des corners
+    if (corner_check == 0) {
+        printf("Erreur: Aucun points de contrôles trouvé\n");
+        free(pixel);
+        fclose(input);
+        return -1;
+    }
+    
     // Tri des traces dans l'ordre décroissant
     for (int k0 = 0; k0 < nb_trace; k0++) {
         for (int k1 = k0 + 1; k1 < nb_trace; k1++) {
@@ -154,16 +189,9 @@ int stockage(void) {
         }
     }
     
-    // Vérification existence d'une trace
+    // Vérification de l'existence d'une trace
     if (nb_trace == 0) {
-        printf("Erreur: Aucunne trace \n");
-        free(pixel);
-        fclose(input);
-        return -1;
-    }
-    // Vérification existence des corners
-    if (corner_check == 0) {
-        printf("Erreur: Pas de corners\n");
+        printf("Erreur: Aucunne trace trouvée\n");
         free(pixel);
         fclose(input);
         return -1;
@@ -199,9 +227,9 @@ int stockage(void) {
     unsigned int coord_y = 0;
         
     // Création du fichier Traces.txt
-    FILE *output = fopen("Traces.txt", "w");
+    FILE *output = fopen("Traces3.txt", "w");
     if (output == NULL) {
-        printf("Erreur : impossible de créer Traces.txt.\n");
+        printf("Erreur: Impossible de créer Traces.txt\n");
         return 1;
     }
     
