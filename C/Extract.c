@@ -44,7 +44,7 @@ int stockage(void) {
      traces_sf[k] = couleur de la trace n°k (sf = sans filtre)
      traces_f[m] = couleur des 5 traces les plus nombreuses (f = filtre)
      coord_x : coordonnées x du pixel i
-     coord_y : coordonnées y du pixel i
+     coordj_y : coordonnées y du pixel i
      
      ---------------
      ERREURS
