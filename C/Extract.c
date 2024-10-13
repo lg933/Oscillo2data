@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define nb_couleur 256
-
 int stockage(void) {
     
     /*
@@ -53,7 +51,7 @@ int stockage(void) {
     // ------------------------------------------------------------------------
     
     // Ouverture du fichier Pixmap.bin
-    FILE *input = fopen("/Users/leogallacio/Downloads/Pixmap/Pixmap.bin", "rb");
+    FILE *input = fopen("/Users/leogallacio/Downloads/Pixmap3/Pixmap.bin", "rb");
     if (input == NULL) {
         fprintf(stderr, "Erreur. Impossible d'ouvrir le fichier\n");
         return -1;
@@ -122,6 +120,7 @@ int stockage(void) {
     }
     
     // Création de l'histogramme
+    const int nb_couleur = 256;
     unsigned int *frequence = (unsigned int *)calloc(nb_couleur, sizeof(unsigned int));
     for (int i = 0; i < nb_pixels; i++){
                 frequence[pixel[i]]++;
@@ -200,7 +199,7 @@ int stockage(void) {
     unsigned int coord_y = 0;
         
     // Création du fichier Traces.txt
-    FILE *output = fopen("Traces.txt", "w");
+    FILE *output = fopen("Traces3.txt", "w");
     if (output == NULL) {
         printf("Erreur : impossible de créer Traces.txt.\n");
         return 1;
