@@ -51,7 +51,7 @@ int stockage(void) {
     // ------------------------------------------------------------------------
     
     // Ouverture du fichier Pixmap.bin
-    FILE *input = fopen("/Users/leogallacio/Downloads/Pixmap3/Pixmap.bin", "rb");
+    FILE *input = fopen("/Users/leogallacio/Downloads/Pixmap/Pixmap.bin", "rb");
     if (input == NULL) {
         fprintf(stderr, "Erreur. Impossible d'ouvrir le fichier\n");
         return -1;
@@ -199,7 +199,7 @@ int stockage(void) {
     unsigned int coord_y = 0;
         
     // Création du fichier Traces.txt
-    FILE *output = fopen("Traces3.txt", "w");
+    FILE *output = fopen("Traces.txt", "w");
     if (output == NULL) {
         printf("Erreur : impossible de créer Traces.txt.\n");
         return 1;
