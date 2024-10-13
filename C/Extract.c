@@ -119,7 +119,7 @@ int stockage(void) {
         return -1;
     }
     
-    // Création de l'histogramme
+    // Création de l'histogramme à 256 entrées
     const int nb_couleur = 256;
     unsigned int *frequence = (unsigned int *)calloc(nb_couleur, sizeof(unsigned int));
     for (int i = 0; i < nb_pixels; i++){
