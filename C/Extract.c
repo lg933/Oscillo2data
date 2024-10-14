@@ -56,7 +56,7 @@ int stockage(void) {
      Erreur: La profondeur doit être égale à 8
      Erreur: Largeur et hauteur doivent être comprises entre 100 et 1000
      Erreur: Impossible d'allouer de la mémoire pour les pixels
-     Erreur: Nombre incompatible de pixels lus
+     Erreur: Nombre de pixels lus incompatible avec les dimensions
      Erreur: Impossible d'allouer de la mémoire pour l'histogramme des couleurs
      Erreur: Aucun points de contrôles trouvés
      Erreur: Aucunne trace trouvée
@@ -133,7 +133,7 @@ int stockage(void) {
     // Lecture des pixels du fichier
     size_t pix_read = fread(pixel, sizeof(unsigned char), nb_pixels, input);
     if (pix_read != nb_pixels) {
-        printf("Erreur: Nombre de pixels lus incompatible\n");
+        printf("Erreur: Nombre de pixels lus incompatible avec les dimensions\n");
         free(pixel);
         fclose(input);
         return -1;
