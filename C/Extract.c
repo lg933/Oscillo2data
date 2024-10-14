@@ -44,7 +44,7 @@ int stockage(void) {
      traces_sf[k] = couleur de la trace n°k (sf = sans filtre)
      traces_f[m] = couleur des 5 traces les plus nombreuses (f = filtre)
      coord_x : coordonnées x du pixel i
-     coordj_y : coordonnées y du pixel i
+     coord_y : coordonnées y du pixel i
      
      ---------------
      ERREURS
@@ -73,7 +73,7 @@ int stockage(void) {
     // ------------------------------------------------------------------------
     
     // Ouverture du fichier Pixmap.bin
-    FILE *input = fopen("/Users/leogallacio/Downloads/Pixmap3/Pixmap.bin", "rb");
+    FILE *input = fopen("/Users/leogallacio/Downloads/Pixmaps/Pixmap.bin", "rb");
     if (input == NULL) {
         fprintf(stderr, "Erreur: Impossible d'ouvrir le fichier\n");
         return -1;
@@ -133,7 +133,7 @@ int stockage(void) {
     // Lecture des pixels du fichier
     size_t pix_read = fread(pixel, sizeof(unsigned char), nb_pixels, input);
     if (pix_read != nb_pixels) {
-        printf("Erreur: Nombre incompatible de pixels lus\n");
+        printf("Erreur: Nombre de pixels lus incompatible\n");
         free(pixel);
         fclose(input);
         return -1;
@@ -227,7 +227,7 @@ int stockage(void) {
     unsigned int coord_y = 0;
         
     // Création du fichier Traces.txt
-    FILE *output = fopen("Traces3.txt", "w");
+    FILE *output = fopen("Traces.txt", "w");
     if (output == NULL) {
         printf("Erreur: Impossible de créer Traces.txt\n");
         return 1;
