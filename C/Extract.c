@@ -82,7 +82,7 @@ int stockage(void) {
     // ------------------------------------------------------------------------
     
     // Ouverture du fichier Pixmap.bin
-    FILE *input = fopen("/Users/leogallacio/Downloads/Pixmaps/Pixmap.bin", "rb");
+    FILE *input = fopen("/Users/alexandresampaio/Documents/C/Pixmap1/Pixmap.bin", "rb");
     if (input == NULL) {
         fprintf(stderr, "Erreur: Impossible d'ouvrir le fichier\n");
         return -1;
@@ -198,9 +198,16 @@ int stockage(void) {
         }
     }
     
-    // Vérification de l'existence d'une trace
+    // Vérification de l'existence d'une trace et moins de 10
     if (nb_trace == 0) {
         printf("Erreur: Aucunne trace trouvée\n");
+        free(pixel);
+        fclose(input);
+        return -1;
+    }
+    
+    if (nb_trace > 10) {
+        printf("Erreur: Trop de traces\n");
         free(pixel);
         fclose(input);
         return -1;
@@ -230,7 +237,7 @@ int stockage(void) {
     // ------------------------------------------------------------------------
     // ÉTAPE 3 : COORDONNÉES
     // ------------------------------------------------------------------------
-
+    
     // Affichage des pixels avec leurs coordonnées
     unsigned int coord_x = 0;
     unsigned int coord_y = 0;
@@ -241,60 +248,68 @@ int stockage(void) {
         printf("Erreur: Impossible de créer Traces.txt\n");
         return 1;
     }
-    
+
+    // Initialisation de la variable pour suivre les erreurs fprintf
+    int err = 0;
+
     // Ecriture des coordonnées des points de contrôle
-    fprintf(output, "Corners= [\n");
+    err += (fprintf(output, "Corners= [\n") < 0);
     for (int i = 0; i < nb_pixels; i++){
         coord_x = i % largeur;
         coord_y = hauteur - i / largeur;
         if ((frequence[pixel[i]] != 0) && (frequence[pixel[i]] == 4)){
-            fprintf(output, "%d, %d;\n", coord_x, coord_y);
+            err += (fprintf(output, "%d, %d;\n", coord_x, coord_y) < 0);
         }
     }
-    fprintf(output, "];\n\n");
-    
+    err += (fprintf(output, "];\n\n") < 0);
+
     // Ecriture des coordonnées des traces (ordre décroissant)
     if (nb_trace > 5){
         for (int i0 = 0; i0 < 5; i0++){
-            fprintf(output, "C%d= [\n", i0);
+            err += (fprintf(output, "C%d= [\n", i0) < 0);
             for (int i1 = 0; i1 < nb_pixels; i1++){
-                coord_x = (i1) % largeur;
-                coord_y = hauteur - (i1) / largeur;
+                coord_x = i1 % largeur;
+                coord_y = hauteur - i1 / largeur;
                 if (pixel[i1] == traces_f[i0]){
-                    fprintf(output, "%d, %d;\n", coord_x, coord_y);
+                    err += (fprintf(output, "%d, %d;\n", coord_x, coord_y) < 0);
                 }
             }
-            fprintf(output, "];\n\n");
+            err += (fprintf(output, "];\n\n") < 0);
         }
-    }
-    else if (nb_trace <= 5){
+    } else if (nb_trace <= 5){
         for (int i0 = 0; i0 < nb_trace; i0++){
-            fprintf(output, "C%d= [\n", i0);
+            err += (fprintf(output, "C%d= [\n", i0) < 0);
             for (int i1 = 0; i1 < nb_pixels; i1++){
-                coord_x = (i1) % largeur;
-                coord_y = hauteur - (i1) / largeur;
+                coord_x = i1 % largeur;
+                coord_y = hauteur - i1 / largeur;
                 if (pixel[i1] == traces_f[i0]){
-                    fprintf(output, "%d, %d;\n", coord_x, coord_y);
+                    err += (fprintf(output, "%d, %d;\n", coord_x, coord_y) < 0);
                 }
             }
-            fprintf(output, "];\n\n");
+            err += (fprintf(output, "];\n\n") < 0);
         }
     }
-    
-    // Ecriture T ={C0 C1 ... };
-    fprintf(output, "T ={");
+
+    // Ecriture de T ={C0 C1 ... };
+    err += (fprintf(output, "T ={") < 0);
     if (nb_trace > 5){
         for (int a = 0; a < 5; a++){
-            fprintf(output, "C%d ", a);
+            err += (fprintf(output, "C%d ", a) < 0);
         }
-    }
-    else if (nb_trace <= 5){
+    } else if (nb_trace <= 5){
         for (int a = 0; a < nb_trace; a++){
-            fprintf(output, "C%d ", a);
+            err += (fprintf(output, "C%d ", a) < 0);
         }
     }
-    fprintf(output, "};\n\n");
-    
+    err += (fprintf(output, "};\n\n") < 0);
+
+    // Vérification s'il y a eu des erreurs lors de l'écriture dans Traces.txt
+    if (err > 0) {
+        fprintf(stderr, "Erreur lors de l'écriture dans Traces.txt\n");
+        fclose(output);
+        return -1;
+    }
+
     // Fermeture des fichiers
     fclose(input);
     fclose(output);
