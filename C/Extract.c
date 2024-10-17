@@ -1,6 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+                    AUTEURS
+ 
+ Léo Gallacio
+ Alexandre Sampaio
+ Fabio Feig
+ 
+*/
+
 int stockage(void) {
     
     /*
